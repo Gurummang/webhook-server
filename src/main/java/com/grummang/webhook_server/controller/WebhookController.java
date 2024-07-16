@@ -3,16 +3,15 @@ package com.grummang.webhook_server.controller;
 import com.grummang.webhook_server.dto.SlackChannelCreatedEventDto;
 import com.grummang.webhook_server.dto.SlackFileSharedEventDto;
 import com.grummang.webhook_server.dto.SlackMemberJoinedChannelEventDto;
+import com.grummang.webhook_server.dto.SlackUserJoinedEventDto;
 import com.grummang.webhook_server.service.SlackEventDistributor;
+import com.slack.api.Slack;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -28,9 +27,12 @@ public class WebhookController {
         this.slackEventDistributor = slackEventDistributor;
     }
 
-    @PostMapping("/slack")
-    public ResponseEntity<String> handleSlackEvent(@Valid @RequestBody Map<String, Object> payload) {
+
+    @PostMapping("/slack/{org_webhook_url}")
+    public ResponseEntity<String> handleSlackEvent(@Valid @RequestBody Map<String, Object> payload,@PathVariable  String org_webhook_url) {
         log.info("Received Slack event: {}", payload);
+
+        System.out.println(org_webhook_url);
         try {
             String type = (String) payload.get("type");
             if ("url_verification".equals(type)) {
@@ -41,20 +43,23 @@ public class WebhookController {
             String eventType = (String) ((Map<String, Object>) payload.get("event")).get("type");
 
             switch (eventType) {
-                case "file_shared":
-                    SlackFileSharedEventDto fileSharedEventDto = convertToFileSharedEventDto(payload);
+                case "file_shared" -> {
+                    SlackFileSharedEventDto fileSharedEventDto = convertToFileSharedEventDto(payload, org_webhook_url);
                     slackEventDistributor.distributeEvent(fileSharedEventDto);
-                    break;
-                case "member_joined_channel":
-                    SlackMemberJoinedChannelEventDto memberJoinedChannelEventDto = convertToMemberJoinedChannelEventDto(payload);
+                }
+                case "member_joined_channel" -> {
+                    SlackMemberJoinedChannelEventDto memberJoinedChannelEventDto = convertToMemberJoinedChannelEventDto(payload, org_webhook_url);
                     slackEventDistributor.distributeEvent(memberJoinedChannelEventDto);
-                    break;
-                case "channel_created":
-                    SlackChannelCreatedEventDto channelCreatedEventDto = convertToChannelCreatedEventDto(payload);
+                }
+                case "channel_created" -> {
+                    SlackChannelCreatedEventDto channelCreatedEventDto = convertToChannelCreatedEventDto(payload, org_webhook_url);
                     slackEventDistributor.distributeEvent(channelCreatedEventDto);
-                    break;
-                default:
-                    log.warn("Unsupported event type: {}", eventType);
+                }
+                case "team_join" -> {
+                    SlackUserJoinedEventDto userJoinedEventDto = convertToUserJoinedEventDto(payload, org_webhook_url);
+                    slackEventDistributor.distributeEvent(userJoinedEventDto);
+                }
+                default -> log.warn("Unsupported event type: {}", eventType);
             }
 
             return ResponseEntity.ok("Event received successfully");
@@ -64,24 +69,21 @@ public class WebhookController {
         }
     }
 
-    private SlackFileSharedEventDto convertToFileSharedEventDto(Map<String, Object> payload) {
+    private SlackFileSharedEventDto convertToFileSharedEventDto(Map<String, Object> payload,String org_webhook_url) {
         Map<String, Object> event = (Map<String, Object>) payload.get("event");
         SlackFileSharedEventDto dto = new SlackFileSharedEventDto();
-        dto.setEvent((String) payload.get("type"));
-        dto.setToken((String) payload.get("token"));
-        dto.setTeamId((String) payload.get("team_id"));
-        dto.setApiAppId((String) payload.get("api_app_id"));
+        dto.setFrom(org_webhook_url);
+        dto.setEvent((String) event.get("type"));
+        dto.setSaas("slack");
         dto.setFileId((String) event.get("file_id"));
-        dto.setUploadUser((String) event.get("user_id"));
-        dto.setUploadChannel((String) event.get("channel_id"));
-        dto.setTimestamp((String) event.get("event_ts"));
         return dto;
     }
 
-    private SlackMemberJoinedChannelEventDto convertToMemberJoinedChannelEventDto(Map<String, Object> payload) {
+    private SlackMemberJoinedChannelEventDto convertToMemberJoinedChannelEventDto(Map<String, Object> payload, String org_webhook_url) {
         Map<String, Object> event = (Map<String, Object>) payload.get("event");
         SlackMemberJoinedChannelEventDto dto = new SlackMemberJoinedChannelEventDto();
-        dto.setEvent((String) payload.get("type"));
+        dto.setFrom(org_webhook_url);
+        dto.setEvent((String) event.get("type"));
         dto.setToken((String) payload.get("token"));
         dto.setTeamId((String) payload.get("team_id"));
         dto.setApiAppId((String) payload.get("api_app_id"));
@@ -91,17 +93,24 @@ public class WebhookController {
         return dto;
     }
 
-    private SlackChannelCreatedEventDto convertToChannelCreatedEventDto(Map<String, Object> payload) {
+    private SlackChannelCreatedEventDto convertToChannelCreatedEventDto(Map<String, Object> payload, String org_webhook_url) {
         Map<String, Object> event = (Map<String, Object>) payload.get("event");
         SlackChannelCreatedEventDto dto = new SlackChannelCreatedEventDto();
-        dto.setEvent((String) payload.get("type"));
-        dto.setToken((String) payload.get("token"));
-        dto.setTeamId((String) payload.get("team_id"));
-        dto.setApiAppId((String) payload.get("api_app_id"));
+        dto.setFrom(org_webhook_url);
+        dto.setEvent((String) event.get("type"));
+        dto.setSaas("slack");
         dto.setChannelId((String) event.get("channel_id"));
-        dto.setChannelName((String) event.get("channel_name"));
-        dto.setChannelType((String) event.get("channel_type"));
-        dto.setTimestamp((String) event.get("event_ts"));
+        return dto;
+    }
+
+    private SlackUserJoinedEventDto convertToUserJoinedEventDto(Map<String, Object> payload, String org_webhook_url) {
+        Map<String, Object> event = (Map<String, Object>) payload.get("event");
+        Map<String, Object> user = (Map<String, Object>) event.get("user");
+        SlackUserJoinedEventDto dto = new SlackUserJoinedEventDto();
+        dto.setFrom(org_webhook_url);
+        dto.setEvent((String) event.get("type"));
+        dto.setSaas("slack");
+        dto.setJoinedUserId((String) user.get("id"));
         return dto;
     }
 }
