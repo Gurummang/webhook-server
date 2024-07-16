@@ -8,5 +8,6 @@ public interface SlackEventHandler {
     void handleFileSharedEvent(SlackFileSharedEventDto eventDto);
     void handleMemberJoinedChannelEvent(SlackMemberJoinedChannelEventDto eventDto);
     void handleChannelCreatedEvent(SlackChannelCreatedEventDto eventDto);
+    String handleEventSubscribed(Map<String, Object> payload);
     void handleUserJoinedEvent(SlackUserJoinedEventDto userJoinedEventDto);
 }
