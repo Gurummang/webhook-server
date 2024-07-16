@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class SlackMemberJoinedChannelEventDto {
+    private String from;
     private String event;
     private String saas;
     private String token;
