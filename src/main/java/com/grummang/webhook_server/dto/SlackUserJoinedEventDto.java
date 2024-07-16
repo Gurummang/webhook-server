@@ -1,8 +1,6 @@
 package com.grummang.webhook_server.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 public class SlackUserJoinedEventDto {
