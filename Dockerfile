@@ -1,17 +1,15 @@
-# Start with a base image containing Java runtime
-FROM openjdk:17-jdk-alpine
+# Step 1: Build the application
+FROM gradle:8.5-jdk21 as builder
+WORKDIR /app
+COPY . .
+RUN gradle build --no-daemon
 
-# Add a volume pointing to /tmp
-VOLUME /tmp
-
-# The application's jar file
-ARG JAR_FILE=target/webhook-server-0.0.1-SNAPSHOT.jar
-
-# Add the application's jar to the container
-ADD ${JAR_FILE} app.jar
-
-# Run the jar file
-ENTRYPOINT ["java","-jar","/app.jar"]
+# Step 2: Run the application
+FROM openjdk:21-jdk-slim
+WORKDIR /app
+COPY --from=builder /app/build/libs/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
 
 
 ## Start with a lightweight base image
