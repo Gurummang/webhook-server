@@ -7,5 +7,6 @@ public class SlackUserJoinedEventDto {
     private String from;
     private String event;
     private String saas;
+    private String teamId;
     private String joinedUserId;
 }
