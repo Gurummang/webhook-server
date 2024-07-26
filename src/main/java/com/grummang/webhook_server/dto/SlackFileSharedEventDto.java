@@ -7,5 +7,6 @@ public class SlackFileSharedEventDto {
     private String from;
     private String event;
     private String saas;
+    private String teamId;
     private String fileId;
 }

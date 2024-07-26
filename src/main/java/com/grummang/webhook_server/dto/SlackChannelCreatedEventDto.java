@@ -7,5 +7,6 @@ public class SlackChannelCreatedEventDto {
     private String from;
     private String event;
     private String saas;
+    private String teamId;
     private String channelId;
 }
