@@ -1,6 +1,6 @@
 package com.grummang.webhook_server.controller;
 
-import com.grummang.webhook_server.dto.slack.*;
+import com.grummang.webhook_server.model.dto.slack.*;
 import com.grummang.webhook_server.service.Slack.SlackDtoFunc;
 import com.grummang.webhook_server.service.Slack.SlackEventDistributor;
 import jakarta.validation.Valid;
@@ -31,7 +31,6 @@ public class WebhookController {
     public ResponseEntity<String> handleSlackEvent(@Valid @RequestBody Map<String, Object> payload, @PathVariable String org_webhook_url) {
         log.info("Received Slack event: {}", payload);
 
-        System.out.println(org_webhook_url);
         try {
             String type = (String) payload.get("type");
             if ("url_verification".equals(type)) {

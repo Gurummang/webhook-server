@@ -1,6 +1,6 @@
 package com.grummang.webhook_server.service.Slack;
 
-import com.grummang.webhook_server.dto.slack.*;
+import com.grummang.webhook_server.model.dto.slack.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
