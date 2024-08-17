@@ -1,10 +1,9 @@
 package com.grummang.webhook_server.controller;
 
-import com.grummang.webhook_server.dto.SlackChannelCreatedEventDto;
-import com.grummang.webhook_server.dto.SlackFileSharedEventDto;
-import com.grummang.webhook_server.dto.SlackMemberJoinedChannelEventDto;
-import com.grummang.webhook_server.dto.SlackUserJoinedEventDto;
-import com.grummang.webhook_server.service.SlackEventDistributor;
+import com.grummang.webhook_server.dto.slack.*;
+import com.grummang.webhook_server.service.GoogleDrive.GoogleDriveService;
+import com.grummang.webhook_server.service.Slack.SlackDtoFunc;
+import com.grummang.webhook_server.service.Slack.SlackEventDistributor;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,10 +19,16 @@ import java.util.Map;
 public class WebhookController {
 
     private final SlackEventDistributor slackEventDistributor;
+    private final GoogleDriveService googleDriveService;
+    private final SlackDtoFunc slackDtoFunc;
 
     @Autowired
-    public WebhookController(SlackEventDistributor slackEventDistributor) {
+    public WebhookController(SlackEventDistributor slackEventDistributor,
+                             GoogleDriveService googleDriveService,
+                             SlackDtoFunc slackDtoFunc) {
         this.slackEventDistributor = slackEventDistributor;
+        this.googleDriveService = googleDriveService;
+        this.slackDtoFunc = slackDtoFunc;
     }
 
     @PostMapping("/slack/{org_webhook_url}")
@@ -38,26 +43,34 @@ public class WebhookController {
                 return ResponseEntity.ok(challenge);
             }
 
-            Map<String, Object> eventMap = castToMap(payload.get("event"));
+            Map<String, Object> eventMap = slackDtoFunc.castToMap(payload.get("event"));
             String eventType = (String) eventMap.get("type");
             String teamId = (String) payload.get("team_id");
             switch (eventType) {
                 case "file_shared" -> {
-                    SlackFileSharedEventDto fileSharedEventDto = convertToFileSharedEventDto(eventMap, teamId, org_webhook_url);
+                    SlackFileSharedEventDto fileSharedEventDto = slackDtoFunc.convertToFileSharedEventDto(eventMap, teamId, org_webhook_url);
                     log.info("File shared event: {}", fileSharedEventDto);
                     slackEventDistributor.distributeEvent(fileSharedEventDto);
                 }
                 case "member_joined_channel" -> {
-                    SlackMemberJoinedChannelEventDto memberJoinedChannelEventDto = convertToMemberJoinedChannelEventDto(eventMap, teamId,org_webhook_url);
+                    SlackMemberJoinedChannelEventDto memberJoinedChannelEventDto = slackDtoFunc.convertToMemberJoinedChannelEventDto(eventMap, teamId,org_webhook_url);
                     slackEventDistributor.distributeEvent(memberJoinedChannelEventDto);
                 }
                 case "channel_created" -> {
-                    SlackChannelCreatedEventDto channelCreatedEventDto = convertToChannelCreatedEventDto(eventMap, teamId,org_webhook_url);
+                    SlackChannelCreatedEventDto channelCreatedEventDto = slackDtoFunc.convertToChannelCreatedEventDto(eventMap, teamId,org_webhook_url);
                     slackEventDistributor.distributeEvent(channelCreatedEventDto);
                 }
                 case "team_join" -> {
-                    SlackUserJoinedEventDto userJoinedEventDto = convertToUserJoinedEventDto(eventMap, teamId, org_webhook_url);
+                    SlackUserJoinedEventDto userJoinedEventDto = slackDtoFunc.convertToUserJoinedEventDto(eventMap, teamId, org_webhook_url);
                     slackEventDistributor.distributeEvent(userJoinedEventDto);
+                }
+                case "file_change" ->{
+                    SlackFileChangeEventDto fileChangeEventDto = slackDtoFunc.convertToFileChangeEventDto(eventMap, teamId, org_webhook_url);
+                    slackEventDistributor.distributeEvent(fileChangeEventDto);
+                }
+                case "file_deleted" -> {
+                    SlackFileDeletedEventDto fileDeletedEventDto = slackDtoFunc.convertToFileDeletedEventDto(eventMap, teamId, org_webhook_url);
+                    slackEventDistributor.distributeEvent(fileDeletedEventDto);
                 }
                 default -> log.warn("Unsupported event type: {}", eventType);
             }
@@ -69,52 +82,27 @@ public class WebhookController {
         }
     }
 
-    private SlackFileSharedEventDto convertToFileSharedEventDto(Map<String, Object> eventMap,String teamId, String org_webhook_url) {
-        SlackFileSharedEventDto dto = new SlackFileSharedEventDto();
-        dto.setFrom(org_webhook_url);
-        dto.setEvent((String) eventMap.get("type"));
-        dto.setSaas("slack");
-        dto.setTeamId(teamId);
-        dto.setFileId((String) eventMap.get("file_id"));
-        return dto;
+
+
+
+
+
+
+
+    @PostMapping("/google-drive/{org_webhook_url}")
+    public ResponseEntity<String> handleEvent(@RequestParam int tenant_id, @RequestBody Map<String, Object> payload) {
+        log.info("Received Google Drive Event: {}", payload);
+
+        // 이벤트 타입에 따른 처리 로직
+        String eventType = (String) payload.get("eventType");
+        switch (eventType) {
+            case "change" -> googleDriveService.handleFileChangeEvent(payload);
+            case "delete" -> googleDriveService.handleFileDeleteEvent(payload);
+
+            // 추가 이벤트 타입 처리 가능
+            default -> log.warn("Unhandled event type: {}", eventType);
+        }
+        return ResponseEntity.ok("Google Drive Event received and logged");
     }
 
-    private SlackMemberJoinedChannelEventDto convertToMemberJoinedChannelEventDto(Map<String, Object> eventMap, String teamId,String org_webhook_url) {
-        SlackMemberJoinedChannelEventDto dto = new SlackMemberJoinedChannelEventDto();
-        dto.setFrom(org_webhook_url);
-        dto.setEvent((String) eventMap.get("type"));
-        dto.setToken((String) eventMap.get("token"));
-        dto.setTeamId(teamId);
-        dto.setApiAppId((String) eventMap.get("api_app_id"));
-        dto.setJoinedUser((String) eventMap.get("user"));
-        dto.setJoinedChannel((String) eventMap.get("channel"));
-        dto.setTimestamp((String) eventMap.get("event_ts"));
-        return dto;
-    }
-
-    private SlackChannelCreatedEventDto convertToChannelCreatedEventDto(Map<String, Object> eventMap, String teamId,String org_webhook_url) {
-        SlackChannelCreatedEventDto dto = new SlackChannelCreatedEventDto();
-        dto.setFrom(org_webhook_url);
-        dto.setEvent((String) eventMap.get("type"));
-        dto.setSaas("slack");
-        dto.setTeamId(teamId);
-        dto.setChannelId((String) eventMap.get("channel_id"));
-        return dto;
-    }
-
-    private SlackUserJoinedEventDto convertToUserJoinedEventDto(Map<String, Object> eventMap, String teamId, String org_webhook_url) {
-        Map<String, Object> user = castToMap(eventMap.get("user"));
-        SlackUserJoinedEventDto dto = new SlackUserJoinedEventDto();
-        dto.setFrom(org_webhook_url);
-        dto.setEvent((String) eventMap.get("type"));
-        dto.setSaas("slack");
-        dto.setTeamId(teamId);
-        dto.setJoinedUserId((String) user.get("id"));
-        return dto;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> castToMap(Object object) {
-        return (Map<String, Object>) object;
-    }
 }

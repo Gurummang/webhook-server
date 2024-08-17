@@ -1,6 +1,6 @@
-package com.grummang.webhook_server.service;
+package com.grummang.webhook_server.service.Slack;
 
-import com.grummang.webhook_server.dto.*;
+import com.grummang.webhook_server.dto.slack.*;
 
 import java.util.Map;
 
@@ -10,4 +10,9 @@ public interface SlackEventHandler {
     void handleChannelCreatedEvent(SlackChannelCreatedEventDto eventDto);
     String handleEventSubscribed(Map<String, Object> payload);
     void handleUserJoinedEvent(SlackUserJoinedEventDto userJoinedEventDto);
+
+
+    void handleFileChangedEvent(SlackFileChangeEventDto userLeftEventDto);
+
+    void handleFileDeletedEvent(SlackFileDeletedEventDto channelDeletedEventDto);
 }

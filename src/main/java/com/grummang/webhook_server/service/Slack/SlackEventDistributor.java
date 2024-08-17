@@ -1,9 +1,6 @@
-package com.grummang.webhook_server.service;
+package com.grummang.webhook_server.service.Slack;
 
-import com.grummang.webhook_server.dto.SlackChannelCreatedEventDto;
-import com.grummang.webhook_server.dto.SlackFileSharedEventDto;
-import com.grummang.webhook_server.dto.SlackMemberJoinedChannelEventDto;
-import com.grummang.webhook_server.dto.SlackUserJoinedEventDto;
+import com.grummang.webhook_server.dto.slack.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,5 +28,13 @@ public class SlackEventDistributor {
 
     public void distributeEvent(SlackUserJoinedEventDto userJoinedEventDto) {
         slackEventHandler.handleUserJoinedEvent(userJoinedEventDto);
+    }
+
+    public void distributeEvent(SlackFileChangeEventDto userLeftEventDto) {
+        slackEventHandler.handleFileChangedEvent(userLeftEventDto);
+    }
+
+    public void distributeEvent(SlackFileDeletedEventDto channelDeletedEventDto) {
+        slackEventHandler.handleFileDeletedEvent(channelDeletedEventDto);
     }
 }
