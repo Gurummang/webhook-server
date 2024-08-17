@@ -19,15 +19,14 @@ import java.util.Map;
 public class WebhookController {
 
     private final SlackEventDistributor slackEventDistributor;
-    private final GoogleDriveService googleDriveService;
+    // private final GoogleDriveService googleDriveService;
     private final SlackDtoFunc slackDtoFunc;
 
     @Autowired
     public WebhookController(SlackEventDistributor slackEventDistributor,
-                             GoogleDriveService googleDriveService,
                              SlackDtoFunc slackDtoFunc) {
         this.slackEventDistributor = slackEventDistributor;
-        this.googleDriveService = googleDriveService;
+        // this.googleDriveService = googleDriveService;
         this.slackDtoFunc = slackDtoFunc;
     }
 
