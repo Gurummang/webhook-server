@@ -1,8 +1,7 @@
 package com.grummang.webhook_server.service.Slack;
 
-import com.grummang.webhook_server.dto.slack.*;
+import com.grummang.webhook_server.model.dto.slack.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -11,7 +10,7 @@ import java.util.Map;
 @Slf4j
 public class SlackDtoFunc {
 
-    public SlackMemberJoinedChannelEventDto convertToMemberJoinedChannelEventDto(Map<String, Object> eventMap, String teamId,String org_webhook_url) {
+    public SlackMemberJoinedChannelEventDto convertToMemberJoinedChannelEventDto(Map<String, Object> eventMap, String teamId, String org_webhook_url) {
         SlackMemberJoinedChannelEventDto dto = new SlackMemberJoinedChannelEventDto();
         dto.setFrom(org_webhook_url);
         dto.setEvent((String) eventMap.get("type"));
@@ -49,7 +48,7 @@ public class SlackDtoFunc {
         return (Map<String, Object>) object;
     }
 
-    public SlackFileSharedEventDto convertToFileSharedEventDto(Map<String, Object> eventMap,String teamId, String org_webhook_url) {
+    public SlackFileSharedEventDto convertToFileSharedEventDto(Map<String, Object> eventMap, String teamId, String org_webhook_url) {
         SlackFileSharedEventDto dto = new SlackFileSharedEventDto();
         dto.setFrom(org_webhook_url);
         dto.setEvent("file_upload");
@@ -67,6 +66,7 @@ public class SlackDtoFunc {
         dto.setTeamId(teamId);
         dto.setFileId((String) eventMap.get("file_id"));
         dto.setWho((String) eventMap.get("user_id"));
+        dto.setTimestamp((String) eventMap.get("event_ts"));
         return dto;
     }
 

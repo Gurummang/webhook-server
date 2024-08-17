@@ -1,4 +1,4 @@
-package com.grummang.webhook_server.dto.slack;
+package com.grummang.webhook_server.model.dto.slack;
 
 import lombok.Data;
 
