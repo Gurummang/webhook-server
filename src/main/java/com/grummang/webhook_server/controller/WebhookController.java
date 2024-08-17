@@ -1,7 +1,6 @@
 package com.grummang.webhook_server.controller;
 
 import com.grummang.webhook_server.dto.slack.*;
-import com.grummang.webhook_server.service.GoogleDrive.GoogleDriveService;
 import com.grummang.webhook_server.service.Slack.SlackDtoFunc;
 import com.grummang.webhook_server.service.Slack.SlackEventDistributor;
 import jakarta.validation.Valid;
@@ -19,14 +18,12 @@ import java.util.Map;
 public class WebhookController {
 
     private final SlackEventDistributor slackEventDistributor;
-    // private final GoogleDriveService googleDriveService;
     private final SlackDtoFunc slackDtoFunc;
 
     @Autowired
     public WebhookController(SlackEventDistributor slackEventDistributor,
                              SlackDtoFunc slackDtoFunc) {
         this.slackEventDistributor = slackEventDistributor;
-        // this.googleDriveService = googleDriveService;
         this.slackDtoFunc = slackDtoFunc;
     }
 
