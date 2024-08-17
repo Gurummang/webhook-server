@@ -1,9 +1,10 @@
-package com.grummang.webhook_server.dto;
+package com.grummang.webhook_server.dto.slack;
 
 import lombok.Data;
 
 @Data
-public class SlackFileSharedEventDto {
+public class SlackFileDeletedEventDto {
+
     private String from;
     private String event;
     private String saas;

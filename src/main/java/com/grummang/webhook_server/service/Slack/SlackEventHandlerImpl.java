@@ -1,9 +1,6 @@
-package com.grummang.webhook_server.service;
+package com.grummang.webhook_server.service.Slack;
 
-import com.grummang.webhook_server.dto.SlackChannelCreatedEventDto;
-import com.grummang.webhook_server.dto.SlackFileSharedEventDto;
-import com.grummang.webhook_server.dto.SlackMemberJoinedChannelEventDto;
-import com.grummang.webhook_server.dto.SlackUserJoinedEventDto;
+import com.grummang.webhook_server.dto.slack.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +37,7 @@ public class SlackEventHandlerImpl implements SlackEventHandler {
         String url = eventProcessingServerUrl + "/file-shared";
         try {
             restTemplate.postForEntity(url, eventDto, String.class);
-            System.out.println("Handling file shared event: " + eventDto);
+            log.info("Handling file shared event: {}", eventDto);
         } catch (RestClientException e) {
             log.error("Failed to send file shared event to {}: {}", url, e.getMessage(), e);
         } catch (Exception e) {
@@ -54,7 +51,7 @@ public class SlackEventHandlerImpl implements SlackEventHandler {
         String url = eventProcessingServerUrl + "/member-joined-channel";
         try {
             restTemplate.postForEntity(url, eventDto, String.class);
-            System.out.println("Handling member joined channel event: " + eventDto);
+            log.info("Handling member joined channel event: {}", eventDto);
         } catch (RestClientException e) {
             log.error("Failed to send member joined channel event to {}: {}", url, e.getMessage(), e);
         } catch (Exception e) {
@@ -68,7 +65,7 @@ public class SlackEventHandlerImpl implements SlackEventHandler {
         String url = eventProcessingServerUrl + "/channel-created";
         try {
             restTemplate.postForEntity(url, eventDto, String.class);
-            System.out.println("Handling channel created event: " + eventDto);
+            log.info("Handling channel created event: {}", eventDto);
         } catch (RestClientException e) {
             log.error("Failed to send channel created event to {}: {}", url, e.getMessage(), e);
         } catch (Exception e) {
@@ -83,11 +80,39 @@ public class SlackEventHandlerImpl implements SlackEventHandler {
         String url = eventProcessingServerUrl + "/user-joined";
         try {
             restTemplate.postForEntity(url, userJoinedEventDto, String.class);
-            System.out.println("Handling user joined event: " + userJoinedEventDto);
+            log.info("Handling user joined event: {}" , userJoinedEventDto);
         } catch (RestClientException e) {
             log.error("Failed to send user joined event to {}: {}", url, e.getMessage(), e);
         } catch (Exception e) {
             log.error("Unexpected error while handling user joined event: {}", e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void handleFileChangedEvent(SlackFileChangeEventDto slackFileChangeEventDto) {
+        // 파일 변경 이벤트 처리 로직
+        String url = eventProcessingServerUrl + "/file-change";
+        try {
+            restTemplate.postForEntity(url, slackFileChangeEventDto, String.class);
+            log.info("Handling file changed event: {}", slackFileChangeEventDto);
+        } catch (RestClientException e) {
+            log.error("Failed to send file changed event to {}: {}", url, e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Unexpected error while handling file changed event: {}", e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void handleFileDeletedEvent(SlackFileDeletedEventDto slackFileDeletedEventDto) {
+        // 파일 삭제 이벤트 처리 로직
+        String url = eventProcessingServerUrl + "/file-delete";
+        try {
+            restTemplate.postForEntity(url, slackFileDeletedEventDto, String.class);
+            log.info("Handling file deleted event: {}", slackFileDeletedEventDto);
+        } catch (RestClientException e) {
+            log.error("Failed to send file deleted event to {}: {}", url, e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("Unexpected error while handling file deleted event: {}", e.getMessage(), e);
         }
     }
 }
