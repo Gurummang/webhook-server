@@ -80,28 +80,20 @@ public class WebhookController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing event");
         }
     }
+    // @PostMapping("/google-drive/{org_webhook_url}")
+    // public ResponseEntity<String> handleEvent(@RequestParam int tenant_id, @RequestBody Map<String, Object> payload) {
+    //     log.info("Received Google Drive Event: {}", payload);
 
+    //     // 이벤트 타입에 따른 처리 로직
+    //     String eventType = (String) payload.get("eventType");
+    //     switch (eventType) {
+    //         case "change" -> googleDriveService.handleFileChangeEvent(payload);
+    //         case "delete" -> googleDriveService.handleFileDeleteEvent(payload);
 
-
-
-
-
-
-
-    @PostMapping("/google-drive/{org_webhook_url}")
-    public ResponseEntity<String> handleEvent(@RequestParam int tenant_id, @RequestBody Map<String, Object> payload) {
-        log.info("Received Google Drive Event: {}", payload);
-
-        // 이벤트 타입에 따른 처리 로직
-        String eventType = (String) payload.get("eventType");
-        switch (eventType) {
-            case "change" -> googleDriveService.handleFileChangeEvent(payload);
-            case "delete" -> googleDriveService.handleFileDeleteEvent(payload);
-
-            // 추가 이벤트 타입 처리 가능
-            default -> log.warn("Unhandled event type: {}", eventType);
-        }
-        return ResponseEntity.ok("Google Drive Event received and logged");
-    }
+    //         // 추가 이벤트 타입 처리 가능
+    //         default -> log.warn("Unhandled event type: {}", eventType);
+    //     }
+    //     return ResponseEntity.ok("Google Drive Event received and logged");
+    // }
 
 }
