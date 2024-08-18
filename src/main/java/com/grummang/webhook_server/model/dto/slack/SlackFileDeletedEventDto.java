@@ -10,4 +10,5 @@ public class SlackFileDeletedEventDto {
     private String saas;
     private String teamId;
     private String fileId;
+    private String timestamp;
 }
