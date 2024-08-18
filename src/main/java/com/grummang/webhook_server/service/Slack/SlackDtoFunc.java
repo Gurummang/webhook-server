@@ -77,6 +77,7 @@ public class SlackDtoFunc {
         dto.setSaas("slack");
         dto.setTeamId(teamId);
         dto.setFileId((String) eventMap.get("file_id"));
+        dto.setTimestamp((String) eventMap.get("event_ts"));
         return dto;
     }
 }
