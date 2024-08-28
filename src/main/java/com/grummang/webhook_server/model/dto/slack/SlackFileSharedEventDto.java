@@ -9,4 +9,5 @@ public class SlackFileSharedEventDto {
     private String saas;
     private String teamId;
     private String fileId;
+    private String timestamp;
 }
