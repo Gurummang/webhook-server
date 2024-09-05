@@ -127,18 +127,6 @@ public class WebhookController {
                     default -> log.warn("Unsupported event type: {}", changeType);
                 }
             }
-
-            // 2. 요청 바디가 비어 있는 경우에 대한 처리
-            if (payload == null || payload.isEmpty()) {
-                log.warn("Received request with empty or missing body for tenant {}", "tenantId");
-                return ResponseEntity.badRequest().body("Request received without a body for tenant " + "tenantId");
-            }
-
-
-
-            // 3. 실제 이벤트 처리 로직
-            log.info("Processing event for tenant: {}", "tenantId");
-
             return ResponseEntity.ok("O365 Event received and processed for tenant " + "tenantId");
         } catch (Exception e) {
             log.error("Error processing event", e);
