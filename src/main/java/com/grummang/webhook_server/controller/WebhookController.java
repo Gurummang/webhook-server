@@ -153,10 +153,10 @@ public class WebhookController {
 
             // Google Drive의 웹훅은 일반적으로 빈 본문을 가집니다.
             // 실제 변경 정보는 헤더에서 가져옵니다.
-            String channelId = headers.get("x-goog-channel-id");
-            String resourceId = headers.get("x-goog-resource-id");
-            String resourceState = headers.get("x-goog-resource-state");
-            String resourceUri = headers.get("x-goog-resource-uri");
+            String channelId = headers.get("x-goog-channel-id"); // 이 식별을 위해 제공한 UUID 또는 기타 고유한 문자열입니다. 알림 채널.
+            String resourceId = headers.get("x-goog-resource-id"); // 감시된 리소스를 식별하는 불투명 값입니다. 이 ID는 안정성이 우수합니다
+            String resourceState = headers.get("x-goog-resource-state"); // 알림을 트리거한 새 리소스 상태입니다. 가능한 값은 다음과 같습니다. sync님, add님, remove님, update님 trash, untrash 또는 change
+            String resourceUri = headers.get("x-goog-resource-uri"); // 감시된 리소스의 API 버전별 식별자입니다
 
             if ("sync".equals(resourceState)) {
                 log.info("Received sync message for channel: {}", channelId);
