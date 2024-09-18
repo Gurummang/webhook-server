@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class GoogleDriveEventHandlerImpl implements GoogleDriveEventHandler {
 
-    @Value("${event.processing.server.url.googledrive}")
+    @Value("${event.processing.server.url.google-drive}")
     private String eventProcessingServerUrl;
 
     private final RestTemplate restTemplate;
@@ -24,7 +24,7 @@ public class GoogleDriveEventHandlerImpl implements GoogleDriveEventHandler {
 
     @Override
     public void handleChangeEvent(GoogleDriveChangeEventDto changeEventDto) {
-        String url = eventProcessingServerUrl + "/change-event";
+        String url = eventProcessingServerUrl + "/file-change";
         try {
             restTemplate.postForEntity(url, changeEventDto, String.class);
             log.info("Handling Google Drive change event: {}", changeEventDto);
