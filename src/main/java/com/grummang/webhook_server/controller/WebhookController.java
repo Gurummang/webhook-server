@@ -142,7 +142,7 @@ public class WebhookController {
         }
     }
 
-    @PostMapping("/googledrive/{workspaceId}")
+    @PostMapping("/GoogleDrive/{workspaceId}")
     public ResponseEntity<String> handleGoogleDriveEvent(
             @PathVariable String workspaceId,
             @RequestHeader Map<String, String> headers,
