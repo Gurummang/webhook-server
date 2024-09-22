@@ -25,9 +25,10 @@ public class GoogleDriveEventHandlerImpl implements GoogleDriveEventHandler {
     @Override
     public void handleChangeEvent(GoogleDriveChangeEventDto changeEventDto) {
         String url = eventProcessingServerUrl + "/file-change";
+        log.info("Send To Google Drive Event Processing Server: {}", url);
         try {
             restTemplate.postForEntity(url, changeEventDto, String.class);
-            log.info("Send To Google Drive Event Processing Server: {}", url);
+
             log.info("Handling Google Drive change event: {}", changeEventDto);
         } catch (RestClientException e) {
             log.error("Failed to send Google Drive change event to {}: {}", url, e.getMessage(), e);
